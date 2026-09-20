@@ -210,7 +210,8 @@ h1 {
 }
 
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 0.75em 1.1em 0.85em;
   border: 0;
   appearance: none;
@@ -232,8 +233,6 @@ h1 {
 }
 
 .btn--disclosure {
-  display: inline-flex;
-  align-items: center;
   gap: 0.7em;
 }
 
@@ -410,16 +409,20 @@ h1 {
  * clip it sits on. The delayed `visibility` keeps it off the tab order and out
  * of the accessibility tree once it has finished sliding back out, and JS
  * mirrors that with `inert` for the whole of the closed state.
+ *
+ * Because it borrows the handbill's box, it also borrows the handbill's cap on
+ * height, which is tight on phones. Three rows keep that honest: the heading
+ * and the Back button are always on screen, and only the copy between them can
+ * ever need to scroll.
  */
 .sidepanel {
   position: absolute;
   inset: 0;
   z-index: 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   padding: 1.3em 1.6em 1.4em;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--postal) var(--paper-shade);
+  overflow: hidden;
   background: var(--paper);
   border-left: var(--u) solid var(--ink);
   transform: translateX(100%);
@@ -435,6 +438,14 @@ h1 {
   transition: transform 0.4s steps(8);
 }
 
+.sidepanel__copy {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--postal) var(--paper-shade);
+}
+
 .sidepanel p {
   margin: 0 0 0.6em;
   font-size: 0.95em;
@@ -448,8 +459,6 @@ h1 {
 }
 
 .btn--back {
-  display: inline-flex;
-  align-items: center;
   gap: 0.7em;
 }
 
@@ -500,8 +509,7 @@ h1 {
     font-size: clamp(13px, 1.6dvh, 17px);
   }
 
-  .handbill__page,
-  .sidepanel {
+  .handbill__page {
     padding: 0.9em 1.1em 1.2em;
   }
 
@@ -509,9 +517,34 @@ h1 {
     font-size: 2.3em;
   }
 
-  .donate h2,
-  .sidepanel h2 {
+  .donate h2 {
     font-size: 1.7em;
+  }
+
+  /* Every control is a thumb target here, not a pointer target. */
+  .btn {
+    min-height: 44px;
+  }
+
+  /*
+   * The panel is capped at the same share of the screen as the handbill it
+   * covers, so on phones it steps its own type and spacing down a notch to
+   * keep the heading, the copy and the Back button on one screenful.
+   */
+  .sidepanel {
+    padding: 0.8em 1.1em 0.9em;
+  }
+
+  .sidepanel h2 {
+    font-size: 1.5em;
+  }
+
+  .sidepanel p {
+    font-size: 0.9em;
+  }
+
+  .sidepanel__actions {
+    margin-top: 0.9em;
   }
 }
 

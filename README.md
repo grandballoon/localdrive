@@ -23,6 +23,7 @@ The page is two layers.
 The handbill is HTML and CSS (`index.html`, `css/styles.css`), with one small script for the donate disclosure.
 It is capped at a share of the viewport and scrolls internally, with the airmail stripe pinned to its top edge.
 On narrow or portrait screens that cap is tighter, so the handbill keeps to the top of the screen and leaves the mailman and his stoop the bottom.
+The "How it works" panel slides over the page inside that same box, so it lives under the same cap: its heading and Back button stay pinned, only the copy between them can scroll, and on phones its type and spacing step down to fit.
 The scene is a low-resolution canvas drawn by `js/`, scaled up by a whole-number factor so pixels stay square and crisp.
 
 Two CSS custom properties are the only contract between the layers.
