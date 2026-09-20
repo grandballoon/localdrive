@@ -10,6 +10,7 @@
  */
 
 const page = document.querySelector('#handbill-page');
+const scrollHint = document.querySelector('#scroll-hint');
 
 const donateToggle = document.querySelector('#donate-toggle');
 const donateForm = document.querySelector('#donate-form');
@@ -19,6 +20,30 @@ const panel = document.querySelector('#how-it-works');
 const panelClose = document.querySelector('#how-it-works-close');
 
 const isOpen = (trigger) => trigger.getAttribute('aria-expanded') === 'true';
+
+/*
+ * The caret is a statement about the scroller, so it is derived from the
+ * scroller and never set by hand: it shows only while the page has copy left
+ * below the fold. Sub-pixel rounding in scrollHeight can leave a fraction of a
+ * pixel at the very bottom, hence the slop.
+ */
+const SCROLL_END_SLOP = 2;
+
+function updateScrollHint() {
+  const remaining = page.scrollHeight - page.clientHeight - page.scrollTop;
+  scrollHint.dataset.visible = String(remaining > SCROLL_END_SLOP);
+}
+
+page.addEventListener('scroll', updateScrollHint, { passive: true });
+
+/*
+ * Observing the scroller catches the viewport resizing; observing its children
+ * catches the copy growing, which is what opening the donate form does (a
+ * hidden child measures 0x0, so revealing it resizes it).
+ */
+const contentObserver = new ResizeObserver(updateScrollHint);
+contentObserver.observe(page);
+for (const child of page.children) contentObserver.observe(child);
 
 function setDonateOpen(open) {
   donateToggle.setAttribute('aria-expanded', String(open));

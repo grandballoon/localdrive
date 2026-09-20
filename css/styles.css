@@ -350,6 +350,57 @@ h1 {
   text-transform: uppercase;
 }
 
+/* ---------- Scroll hint ---------- */
+
+/*
+ * A "there is more below" caret. It lives in .handbill__body rather than in
+ * the scroller, so it stays pinned to the paper's lower right instead of
+ * riding the scroll offset, and the slide-over panel (z-index 2) covers it.
+ * Its only state is data-visible, written by handbill.js from the scroller's
+ * own measurements, so it is absent whenever the page has nothing left to
+ * reveal. The paper pad behind the caret keeps it legible over body copy.
+ */
+.scroll-hint {
+  position: absolute;
+  right: calc(var(--u) * 3);
+  bottom: var(--u);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 5);
+  pointer-events: none;
+  background: var(--paper);
+  opacity: 0;
+  transition: opacity 0.25s steps(3);
+}
+
+.scroll-hint[data-visible="true"] {
+  opacity: 1;
+}
+
+.scroll-hint::after {
+  content: "";
+  width: calc(var(--u) * 5);
+  height: calc(var(--u) * 3);
+  background: var(--ink-soft);
+  clip-path: polygon(
+    0 0,
+    calc(var(--u) * 5) 0,
+    calc(var(--u) * 5) var(--u),
+    calc(var(--u) * 4) var(--u),
+    calc(var(--u) * 4) calc(var(--u) * 2),
+    calc(var(--u) * 3) calc(var(--u) * 2),
+    calc(var(--u) * 3) calc(var(--u) * 3),
+    calc(var(--u) * 2) calc(var(--u) * 3),
+    calc(var(--u) * 2) calc(var(--u) * 2),
+    var(--u) calc(var(--u) * 2),
+    var(--u) var(--u),
+    0 var(--u)
+  );
+  animation: nudge 1.8s steps(1) infinite;
+}
+
 /* ---------- Slide-over panel ---------- */
 
 /*
@@ -476,6 +527,11 @@ h1 {
   to { transform: translateY(0); }
 }
 
+@keyframes nudge {
+  0%, 60% { transform: translateY(0); }
+  30% { transform: translateY(var(--u)); }
+}
+
 @keyframes ink-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -490,6 +546,14 @@ h1 {
 
   .handbill__page {
     scroll-behavior: auto;
+  }
+
+  .scroll-hint {
+    transition: none;
+  }
+
+  .scroll-hint::after {
+    animation: none;
   }
 
   .sidepanel,
