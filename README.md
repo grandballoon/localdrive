@@ -34,6 +34,7 @@ It is anchored to the ground: extra viewport height becomes sky, and extra width
 
 | Path | Responsibility |
 | --- | --- |
+| `favicon.svg` | The tab icon: a laptop on the same pixel grid and palette. |
 | `js/main.js` | Canvas sizing, resize handling, frame loop. |
 | `js/handbill.js` | The donate disclosure: button state, panel visibility. |
 | `js/layout.js` | Viewport in, positions of everything out. |
