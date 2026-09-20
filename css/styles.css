@@ -1,0 +1,504 @@
+/*
+ * --u is the on-screen size of one scene pixel. main.js sets it so the
+ * handbill's borders and shadows land on the same pixel grid as the canvas.
+ * --hero-anchor tells the scene where (0..1 across the viewport) to centre
+ * the hero brownstone, so layout breakpoints live here and only here.
+ */
+:root {
+  --u: 4px;
+  --hero-anchor: 0.7;
+
+  --paper: #f6e6c6;
+  --paper-shade: #e3cb9a;
+  --ink: #2a1626;
+  --ink-soft: #5a3a48;
+  --oxblood: #8f2327;
+  --oxblood-dark: #5f1419;
+  --postal: #3d6796;
+  --postal-ink: #2b4d77;
+  --ice: #cfe6f3;
+  --gold: #e9a53a;
+  --dusk: #2a1438;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--dusk);
+}
+
+body {
+  position: relative;
+  height: 100dvh;
+  color: var(--ink);
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.55;
+}
+
+/*
+ * The pixel look lives in the canvas and the chunky --u borders, so only the
+ * display face opts out of antialiasing; body copy keeps it and stays legible.
+ */
+h1,
+.donate h2,
+.sidepanel h2 {
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+#scene {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  animation: develop 0.9s steps(5) both;
+}
+
+/* ---------- Handbill ---------- */
+
+/*
+ * Three nested jobs, one per element: .handbill is the paper frame (it owns
+ * the border, the drop shadow and the size), .handbill__body is the clipped
+ * window the slide-over panel moves through, and .handbill__page is the only
+ * thing that scrolls. Keeping the frame out of the scroller is what lets the
+ * panel sit still over the page instead of riding its scroll offset.
+ */
+.handbill {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 5vw;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(44vw, 31em);
+  height: fit-content;
+  max-height: calc(100dvh - 12 * var(--u));
+  margin-block: auto;
+  overflow: hidden;
+  font-size: clamp(15px, 2.1dvh, 22px);
+  background: var(--paper);
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--ink),
+    0 var(--u) 0 0 var(--ink),
+    var(--u) 0 0 0 var(--ink),
+    calc(var(--u) * -1) 0 0 0 var(--ink),
+    calc(var(--u) * 3) calc(var(--u) * 3) 0 0 rgb(31 12 38 / 0.6);
+  animation: post 0.6s steps(6) 0.25s both;
+}
+
+.handbill__airmail {
+  height: calc(var(--u) * 2);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--oxblood) 0 calc(var(--u) * 3),
+    var(--paper) 0 calc(var(--u) * 4),
+    var(--postal) 0 calc(var(--u) * 7),
+    var(--paper) 0 calc(var(--u) * 8)
+  );
+}
+
+.handbill__body {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.handbill__page {
+  min-height: 0;
+  padding: 1.3em 1.6em 1.4em;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--u) * 4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--postal) var(--paper-shade);
+}
+
+.handbill__page > * {
+  animation: ink-in 0.4s steps(3) both;
+}
+.eyebrow { animation-delay: 0.75s; }
+h1 { animation-delay: 0.85s; }
+.lede { animation-delay: 0.95s; }
+.steps { animation-delay: 1.05s; }
+.donate { animation-delay: 1.15s; }
+.actions { animation-delay: 1.25s; }
+.fineprint { animation-delay: 1.35s; }
+
+.eyebrow {
+  margin: 0 0 0.7em;
+  color: var(--postal-ink);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 0.3em;
+  color: var(--oxblood);
+  font-family: "Jersey 20", ui-monospace, monospace;
+  font-size: 3.4em;
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0 0 1em;
+  font-size: 1.02em;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.steps {
+  margin: 0 0 1.2em;
+  padding: 0.8em 0 0;
+  list-style: none;
+  counter-reset: step;
+  border-top: var(--u) dotted var(--paper-shade);
+}
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7em;
+  color: var(--ink-soft);
+  font-size: 0.92em;
+  line-height: 1.45;
+  counter-increment: step;
+}
+
+.steps li + li {
+  margin-top: 0.45em;
+}
+
+.steps li::before {
+  content: counter(step);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  color: var(--paper);
+  background: var(--postal-ink);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 3) calc(var(--u) * 4);
+  padding: var(--u);
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75em 1.1em 0.85em;
+  border: 0;
+  appearance: none;
+  cursor: pointer;
+  line-height: normal;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 0.88em;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--ink),
+    0 var(--u) 0 0 var(--ink),
+    var(--u) 0 0 0 var(--ink),
+    calc(var(--u) * -1) 0 0 0 var(--ink),
+    inset 0 calc(var(--u) * -1) 0 0 var(--paper-shade);
+}
+
+.btn--disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.btn--disclosure::after {
+  content: "";
+  flex: none;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 2);
+  background: currentColor;
+  clip-path: polygon(
+    0 0,
+    calc(var(--u) * 4) 0,
+    calc(var(--u) * 4) var(--u),
+    calc(var(--u) * 3) var(--u),
+    calc(var(--u) * 3) calc(var(--u) * 2),
+    var(--u) calc(var(--u) * 2),
+    var(--u) var(--u),
+    0 var(--u)
+  );
+}
+
+.btn--disclosure[aria-expanded="true"]::after {
+  transform: scaleY(-1);
+}
+
+.btn--primary {
+  color: var(--paper);
+  background: var(--oxblood);
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--ink),
+    0 var(--u) 0 0 var(--ink),
+    var(--u) 0 0 0 var(--ink),
+    calc(var(--u) * -1) 0 0 0 var(--ink),
+    inset 0 calc(var(--u) * -1) 0 0 var(--oxblood-dark);
+}
+
+.btn:hover {
+  transform: translateY(calc(var(--u) * -1));
+}
+
+.btn:active {
+  transform: translateY(var(--u));
+}
+
+.btn:focus-visible {
+  outline: var(--u) solid var(--postal);
+  outline-offset: calc(var(--u) * 2);
+}
+
+.fineprint {
+  margin: 1.1em 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85em;
+}
+
+.donate {
+  margin-top: 1.4em;
+  padding-top: 1.1em;
+  border-top: var(--u) dotted var(--paper-shade);
+}
+
+.donate h2,
+.sidepanel h2 {
+  margin: 0 0 0.35em;
+  color: var(--oxblood);
+  font-family: "Jersey 20", ui-monospace, monospace;
+  font-size: 2.1em;
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+
+.donate p {
+  margin: 0 0 0.6em;
+  font-size: 0.95em;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.donate a {
+  color: var(--postal-ink);
+  font-weight: 500;
+  text-decoration-thickness: calc(var(--u) / 2);
+  text-underline-offset: 0.2em;
+}
+
+.donate a:focus-visible {
+  outline: var(--u) solid var(--postal);
+  outline-offset: var(--u);
+}
+
+.disclosure {
+  margin: calc(var(--u) * 2) var(--u) 0;
+  padding: calc(var(--u) * 3);
+  background: var(--paper);
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--ink),
+    0 var(--u) 0 0 var(--ink),
+    var(--u) 0 0 0 var(--ink),
+    calc(var(--u) * -1) 0 0 0 var(--ink);
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--u) * 22);
+  margin: 0;
+  padding: 1em;
+  color: var(--ink-soft);
+  background: var(--paper-shade);
+  font-size: 0.82em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- Slide-over panel ---------- */
+
+/*
+ * Covers the page inside the handbill's own border rather than the viewport,
+ * so the paper never appears to open twice. It is always in the layout and
+ * always laid out over the page; `data-open` only decides which side of the
+ * clip it sits on. The delayed `visibility` keeps it off the tab order and out
+ * of the accessibility tree once it has finished sliding back out, and JS
+ * mirrors that with `inert` for the whole of the closed state.
+ */
+.sidepanel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.3em 1.6em 1.4em;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--postal) var(--paper-shade);
+  background: var(--paper);
+  border-left: var(--u) solid var(--ink);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition:
+    transform 0.4s steps(8),
+    visibility 0s linear 0.4s;
+}
+
+.sidepanel[data-open="true"] {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.4s steps(8);
+}
+
+.sidepanel p {
+  margin: 0 0 0.6em;
+  font-size: 0.95em;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.sidepanel__actions {
+  margin: 1.4em 0 0;
+  padding: var(--u);
+}
+
+.btn--back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.btn--back::before {
+  content: "";
+  flex: none;
+  width: calc(var(--u) * 2);
+  height: calc(var(--u) * 4);
+  background: currentColor;
+  clip-path: polygon(
+    calc(var(--u) * 2) 0,
+    calc(var(--u) * 2) calc(var(--u) * 4),
+    var(--u) calc(var(--u) * 4),
+    var(--u) calc(var(--u) * 3),
+    0 calc(var(--u) * 3),
+    0 var(--u),
+    var(--u) var(--u),
+    var(--u) 0
+  );
+}
+
+/* ---------- Narrow / portrait: handbill on top, stoop below ---------- */
+
+@media (max-width: 760px), (orientation: portrait) {
+  :root {
+    --hero-anchor: 0.5;
+  }
+
+  /*
+   * The handbill takes the top of the screen and leaves the mailman and his
+   * stoop the bottom, so it is capped at a share of the viewport rather than
+   * all of it. Copy longer than that scrolls inside, as it does at any size.
+   */
+  .handbill {
+    top: max(16px, env(safe-area-inset-top));
+    bottom: auto;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: min(
+      46dvh,
+      calc(
+        100dvh - max(16px, env(safe-area-inset-top)) -
+          max(16px, env(safe-area-inset-bottom))
+      )
+    );
+    margin-block: 0;
+    font-size: clamp(13px, 1.6dvh, 17px);
+  }
+
+  .handbill__page,
+  .sidepanel {
+    padding: 0.9em 1.1em 1.2em;
+  }
+
+  h1 {
+    font-size: 2.3em;
+  }
+
+  .donate h2,
+  .sidepanel h2 {
+    font-size: 1.7em;
+  }
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes develop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes post {
+  from { transform: translateY(calc(-100% - 50dvh)); }
+  to { transform: translateY(0); }
+}
+
+@keyframes ink-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scene,
+  .handbill,
+  .handbill__page > * {
+    animation: none !important;
+  }
+
+  .handbill__page {
+    scroll-behavior: auto;
+  }
+
+  .sidepanel,
+  .sidepanel[data-open="true"] {
+    transition: none;
+  }
+
+  .btn:hover,
+  .btn:active {
+    transform: none;
+  }
+}

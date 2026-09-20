@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Local Drive — NYC Computer Donations</title>
+  <meta name="description" content="Donate a laptop or desktop and help open free community computer labs in the neighborhood.">
+  <meta name="theme-color" content="#2a1438">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Jersey+20&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <canvas
+    id="scene"
+    role="img"
+    aria-label="Pixel art of a Brooklyn brownstone at dusk in late autumn. A mailman in a light blue uniform and an ear-flap cap waves from the sidewalk beside a crate of donated computers, while leaves and the first snowflakes drift past."
+  ></canvas>
+
+  <main class="handbill">
+    <div class="handbill__airmail" aria-hidden="true"></div>
+
+    <div class="handbill__body">
+      <div class="handbill__page" id="handbill-page">
+        <p class="eyebrow">Local Drive <span aria-hidden="true">·</span>NYC Computer Donations</p>
+        <h1>Pass your old computer down the block.</h1>
+        <p class="lede">
+          Your old computer works as a tax-deductible donation.
+        </p>
+        <p class="lede">
+          Donate it to furnish free community computer labs right here in NYC!
+        </p>
+        <ol class="steps">
+          <li>Drop it off, or we'll swing by your stoop.</li>
+          <li>Volunteers wipe it clean and refurbish it.</li>
+          <li>It lands in a free lab for your neighbors.</li>
+          <li>We'll email you a tax-deductible receipt for your in-kind donation.</li>
+        </ol>
+
+        <section class="donate" id="donate">
+          <p>Fill out the form below to see the total value of your gift.</p>
+          <p>Once we've picked up the computer(s), we'll automatically email you a tax-deductible receipt for the full value.</p>
+          <p>
+            If you're a company making a large donation, <a href="#company">click here</a>.
+          </p>
+        </section>
+
+        <div class="actions">
+          <button
+            class="btn btn--primary btn--disclosure"
+            type="button"
+            id="donate-toggle"
+            aria-expanded="false"
+            aria-controls="donate-form"
+          >Donate a computer</button>
+          <button
+            class="btn"
+            type="button"
+            id="how-it-works-toggle"
+            aria-expanded="false"
+            aria-controls="how-it-works"
+          >How it works</button>
+        </div>
+
+        <div class="disclosure" id="donate-form" hidden>
+          <p class="placeholder">Form goes here</p>
+        </div>
+      </div>
+
+      <aside
+        class="sidepanel"
+        id="how-it-works"
+        aria-labelledby="how-it-works-title"
+        data-open="false"
+        inert
+      >
+        <h2 id="how-it-works-title">How it works</h2>
+        <p>This is a placeholder for more context on the donation drive.</p>
+        <p class="sidepanel__actions">
+          <button class="btn btn--back" type="button" id="how-it-works-close">Back</button>
+        </p>
+      </aside>
+    </div>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/handbill.js"></script>
+</body>
+</html>
